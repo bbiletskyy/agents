@@ -13,18 +13,10 @@ class UIFrame(val agentManagement: AgentManagement) extends MainFrame {
   preferredSize = new Dimension(320, 240)
   val agentsPanel = new AgentsPanel(200, 200)
   val startStopButton = Button("Start") {
-//    if (title == "Start") {
-//      title == "Stop"
-//      agentManagement.start()
-//    } else if (title == "Stop") {
-//      title == "Start"
-//      agentManagement.stop()
-//    }
-//    this.title = "Stop"
     agentManagement.start()
-    //agents ! Start
   }
-  val refreshButton = Button("Stop") { agentManagement.stop() }
+  val stopButton = Button("Stop") { agentManagement.stop() }
+  val stepButton = Button("Step") { agentManagement.step() }
 
   listenTo(agentsPanel)
   reactions += {
@@ -35,7 +27,8 @@ class UIFrame(val agentManagement: AgentManagement) extends MainFrame {
     contents += agentsPanel
     contents += new BoxPanel(Orientation.Horizontal) {
       contents += startStopButton
-      contents += refreshButton
+      contents += stopButton
+      contents += stepButton
     }
 
   }
@@ -46,14 +39,3 @@ class UIFrame(val agentManagement: AgentManagement) extends MainFrame {
 }
 
 
-
-
-object UIFrame extends MainFrame {
-//  def main(args: Array[String]) {
-//    val ui = new UIFrame()
-//    ui.visible = true
-//    println("End of main function")
-//  }
-
-
-}

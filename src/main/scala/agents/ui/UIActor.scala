@@ -1,19 +1,24 @@
 package agents.ui
-import akka.actor.{Actor, ActorRef}
-import agents.Agents.{AddListener, AgentsUpdated, Start, Stop}
+import akka.actor.{Actor, ActorRef, Cancellable}
+import agents.Agents._
+
+import scala.concurrent.duration._
 
 class UIActor(agents: ActorRef) extends Actor with ActorAgentManagement {
-
+  import context._
   val ui = new UIFrame(this)
+  val timer: Cancellable = system.scheduler.schedule(0 millis, 50 millisecond, agents, GetState)
 
   override def preStart(): Unit = {
     println("UI starting")
-    agents ! AddListener()
+  }
+
+  override def postStop(): Unit = {
+    timer.cancel()
   }
 
   def receive: Receive = {
-    case AgentsUpdated(states) =>
-      ui.updateAgents(states)
+    case GetStateReply(states) => ui.updateAgents(states)
     case _ => println("what?")
   }
 
@@ -25,8 +30,8 @@ trait ActorAgentManagement extends AgentManagement {
 
   override def stop(): Unit = getAgents() ! Stop
 
-  override def refresh(): Unit = {
-    getAgents() ! Start
+  override def step(): Unit = {
+    getAgents() ! Step
   }
 
   override def start(): Unit = {

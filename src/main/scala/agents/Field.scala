@@ -23,22 +23,6 @@ class Field extends EventBus with LookupClassification {
   override protected def compareSubscribers(a: Subscriber, b: Subscriber): Int = a.compareTo(b)
 }
 
-//trait FieldEvent
-//
-//class Field extends EventBus with LookupClassification {
-//  type Event = FieldEvent
-//  type Classifier = String
-//  type Subscriber = ActorRef
-//
-//  override protected def mapSize(): Int = 128
-//
-//  override protected def publish(event: Event, subscriber: Subscriber): Unit = {
-//    subscriber ! event
-//  }
-//
-//  override protected def classify(event: Event): Classifier = "a"
-//
-//  override protected def compareSubscribers(a: Subscriber, b: Subscriber): Int = a.compareTo(b)
-//}
+
 
 
