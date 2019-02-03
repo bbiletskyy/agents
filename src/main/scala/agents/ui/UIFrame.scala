@@ -10,8 +10,8 @@ import agents.ui.AgentsPanel.LocationSelected
 class UIFrame(val agentManagement: AgentManagement) extends MainFrame {
   visible = true
   title = "Agents"
-  preferredSize = new Dimension(320, 240)
-  val agentsPanel = new AgentsPanel(200, 200)
+  preferredSize = new Dimension(600, 600)
+  val agentsPanel = new AgentsPanel(500, 500)
   val startStopButton = Button("Start") {
     agentManagement.start()
   }
@@ -22,8 +22,10 @@ class UIFrame(val agentManagement: AgentManagement) extends MainFrame {
   reactions += {
     case LocationSelected(x, y) => println("Location selected")
   }
+  val timeLabel = new Label("Time: 0")
+
   contents = new BoxPanel(Orientation.Vertical) {
-    contents += new Label("Look at me!")
+    contents += timeLabel
     contents += agentsPanel
     contents += new BoxPanel(Orientation.Horizontal) {
       contents += startStopButton
@@ -33,9 +35,19 @@ class UIFrame(val agentManagement: AgentManagement) extends MainFrame {
 
   }
 
-  def updateAgents(states: List[State]): Unit = {
+  def updateAgents(tickCount: Long, states: List[State]): Unit = {
+    val energies = states.map(_.energy)
+    def round(d: Double) = d - (d % 0.001)
+    val meanEnergy = round(energies.sum/Math.max(states.size, 1))
+    val minEnergy = round(energies.min)
+    val maxEnergy = round(energies.max)
+    timeLabel.text_=(s"Time: $tickCount, mean: $meanEnergy, min: $minEnergy, max: $maxEnergy")
     agentsPanel.drawAgents(states)
   }
 }
 
+object UIFrame extends App {
+  val d: Double = 13.07/7.08
+  println(d - (d %0.01))
+}
 

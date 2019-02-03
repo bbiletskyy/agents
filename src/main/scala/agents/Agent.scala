@@ -1,12 +1,12 @@
 package agents
 
-import agents.Agent.{FieldChanging, FieldChangingReply, FieldChanged, Transformed, Transform}
-import akka.actor.{Actor, ActorRef}
+import agents.Agent.{FieldChanged, FieldChanging, FieldChangingReply, Transform, Transformed}
+import akka.actor.{Actor, ActorLogging, ActorRef}
 
 import scala.math._
 import scala.util.Random
 
-class Agent(s: State, field: Field) extends Actor {
+class Agent(s: State, field: Field) extends Actor with ActorLogging {
   //private var _dynamicState = DynamicState(s)
 
   private var _currState: State = s
@@ -24,10 +24,10 @@ class Agent(s: State, field: Field) extends Actor {
 
   override def receive: Receive = {
     case Transform => transform(sender)
-    case x @ FieldChanging(agent, state, newState) if agent != self => onFieldChanging(x)
-    case FieldChangingReply(delta)                                  => onFieldChangingReply(delta)
-    case FieldChanged(agent, state, newState) if agent != self      => fieldChanged(state, newState)
-    case x                                                          => //println(s"what?!? $x")
+    case FieldChanging(agent, currState, nextState) if agent != self  => onFieldChanging(agent, currState, nextState)
+    case FieldChangingReply(delta)                                    => onFieldChangingReply(delta)
+    case FieldChanged(agent, state, newState) if agent != self        => fieldChanged(state, newState)
+    case x                                                            => //log.debug(s"what?!? $x")
   }
 
   def fieldChanged(otherState: State, otherNewState: State) = {
@@ -36,29 +36,35 @@ class Agent(s: State, field: Field) extends Actor {
   }
 
   def onFieldChangingReply(delta: Double) = {
-    println(s"Field--[FieldChangingReply($delta)]-->Agent")
+    log.debug(s"Field--[FieldChangingReply($delta)]->Agent")
     updateNextState(nextState.copy(energy = state.energy + delta))
   }
 
-  def onFieldChanging(msg: FieldChanging) ={
-    println("Field--[FieldChanging]->Agent")
-    //val deltaFieldEnergy = fieldEnergy(msg.newState) - fieldEnergy(msg.state)
-    val deltaFieldEnergy = nextState.deltaFieldEnergy(msg.prevState, msg.nextState)
-    msg.agent ! FieldChangingReply(deltaFieldEnergy)
-    println(s"Agent--[FieldChangingReply($deltaFieldEnergy)]->Agent")
+  def onFieldChanging(agent: ActorRef, prevState: State, nextState: State) ={
+    log.debug("Field--[FieldChanging]->Agent")
+    val deltaFieldEnergy = nextState.deltaFieldEnergy(prevState, nextState)
+    agent ! FieldChangingReply(deltaFieldEnergy)
+    log.debug(s"Agent(${state.id})--[FieldChangingReply($deltaFieldEnergy)]->Agent")
   }
 
   def transform(sender: ActorRef): Unit = {
-    println("Agent<-[Transform]--Agents")
+    log.debug(s"Agent(${state.id})<-[Transform]--Agents")
     acceptRejectNewState(sender)
     updateNextState(state.transform())
     field.publish(FieldEvent(state.kind, FieldChanging(self, state, nextState)))
-    println("Agent--[FieldEvent[FieldChanging]]-->Field")
+    log.debug(s"Agent(${state.id})--[FieldEvent[FieldChanging]]->Field")
   }
 
   def randomAccept(deltaEnergy: Double) = {
-    println(s"deltaEnergy: $deltaEnergy, prob = ${exp(-deltaEnergy)}")
-    math.random() < exp(-deltaEnergy)
+    val temperature = 1
+    val prob = exp(-deltaEnergy/temperature)
+    val r = math.random()
+    val accepted = r < prob
+    if (accepted)
+      log.info(s"Accepted: id=${state.id}, deltaEnergy: $deltaEnergy, prob = $prob, r = $r")
+    else
+      log.info(s"Rejected: id=${state.id}, deltaEnergy: $deltaEnergy, prob = $prob, r = $r")
+    accepted
   }
 
   def acceptRejectNewState(sender: ActorRef): Unit = {
@@ -69,7 +75,7 @@ class Agent(s: State, field: Field) extends Actor {
       updateState(state.nextVersion())
     }
     sender ! Transformed(oldState, state)
-    println("Agent--[Transformed]->Agents")
+    log.debug("Agent--[Transformed]->Agents")
   }
 }
 
