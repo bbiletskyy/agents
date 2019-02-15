@@ -3,7 +3,6 @@ package agents
 import agents.Agent.{Transform, Transformed}
 import agents.Agents._
 import akka.actor._
-import akka.event.Logging.LogLevel
 
 import scala.collection.mutable
 import scala.util.Random
@@ -17,16 +16,14 @@ class Agents extends Actor with ActorLogging {
 
 
   def receive = {
-    case Tick                             => onTick()
-
-    case Start                            => onStart()
-    case Stop                             => onPause()
-    case Step                             => onStep()
-    case GetState                         => onGetState(sender())
-
-    case AddAgent(s)                      => onAddAgent(s)
-    case Transformed(oldState, nextState)  => onTransformed(sender, oldState, nextState)
-    case _                                => println("huh?")
+    case Tick                                     => onTick()
+    case Start                                    => onStart()
+    case Stop                                     => onPause()
+    case Step                                     => onStep()
+    case GetState                                 => onGetState(sender())
+    case AddAgent(s)                              => onAddAgent(s)
+    case Transformed(step, oldState, nextState)   => onTransformed(sender, oldState, nextState)
+    case _                                        => println("huh?")
   }
 
   override def preStart(): Unit = {
@@ -68,7 +65,7 @@ class Agents extends Actor with ActorLogging {
     val keys = agents.keySet.toList
     val size = keys.size
     val agent = keys(Random.nextInt(size))
-    agent ! Transform
+    agent ! Transform(tickCount)
     log.debug(s"Agents--[Transform]-->Agent")
   }
 

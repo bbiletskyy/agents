@@ -30,9 +30,8 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % "2.5.19",
-  //"org.scala-lang" % "scala-swing" % "2.0.0-M2",
   "org.scala-lang.modules" %% "scala-swing" % "2.1.0",
-  //"org.scala-lang" % "scala-swing" % "2.10+",
+  "org.scalatest" % "scalatest_2.12" % "3.0.5" % Test,
   "com.typesafe.akka" %% "akka-testkit" % "2.5.19" % Test
 )
 

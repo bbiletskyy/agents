@@ -17,7 +17,7 @@ object Main extends App {
 
 
   system.eventStream.setLogLevel(DebugLevel)
-  for (i <- 1 to 2)
+  for (i <- 1 to 1)
     agents ! AddAgent(State(s"a$i", "a", 100 * i, 100*i))
   val ui = system.actorOf(Props(new UIActor(agents)), name = "UI")
 }
