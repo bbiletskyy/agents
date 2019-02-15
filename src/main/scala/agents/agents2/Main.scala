@@ -1,6 +1,6 @@
 package agents.agents2
 
-import agents.agents2.AgentsManagementProtocol.{Start, Step, Stop}
+import agents.agents2.ControlProtocol.{Start, Step, Stop}
 import akka.actor.ActorSystem
 import akka.event.Logging._
 
@@ -10,4 +10,7 @@ object Main extends App {
   system.eventStream.setLogLevel(DebugLevel)
   val agentsSystem = AgentSystem()
   agentsSystem ! Start
+
+
 }
+
