@@ -1,4 +1,4 @@
-package particles.demon
+package particles
 
 import java.util.UUID
 

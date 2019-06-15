@@ -1,11 +1,11 @@
-package particles.demon
+package particles
 
 import java.util.UUID
 
 import akka.actor.{ActorSystem, PoisonPill, Props}
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit}
 import org.scalatest.{FunSpecLike, MustMatchers}
-import particles.demon.Config.{Model, ModelSet, SetModel}
+import Config.{Model, ModelSet, SetModel}
 
 import scala.concurrent.duration._
 import scala.util.Random

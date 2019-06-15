@@ -1,4 +1,4 @@
-package particles.precreated
+package particles
 
 import akka.actor.{ActorSystem, Props}
 import akka.event.Logging.DebugLevel
