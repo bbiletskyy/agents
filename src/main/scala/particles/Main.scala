@@ -1,8 +1,9 @@
 package particles
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.{ActorSystem, PoisonPill, Props}
 import akka.event.Logging.DebugLevel
 import akka.util.Timeout
+
 import scala.concurrent.duration._
 
 object Main {
@@ -15,6 +16,10 @@ object Main {
     val config = system.actorOf(Props[Config], "cfg")
 
     config ! Config.Transform
+    config ! PoisonPill
+
+    system.terminate()
+
 
   }
 }

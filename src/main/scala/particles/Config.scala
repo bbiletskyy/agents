@@ -75,18 +75,20 @@ class Config extends Actor with ActorLogging {
     case Transform =>
       log.info("Configuration received Transform")
 
-      val randomParticle: Particle = _particles.toList(Random.nextInt(_particles.keys.size))._2
-      val neighborhood: Map[String, Particle] = _particles.filter{ case (_, particle) => Math.abs(randomParticle.pos - particle.pos) <= randomParticle.radius}.toMap
-      val energy = randomParticle.energy(neighborhood)
-      val newNeighborhood: Map[String, Particle] = randomParticle.transform(neighborhood)
-      val newEnergy = randomParticle.energy(newNeighborhood)
-      val deltaEnergy = newEnergy - energy
-      if (deltaEnergy < 0) {
-        log.info(s"Transformed: deltaEnergy = $deltaEnergy, energy = $energy, newEnmergy = $newEnergy")
-        _particles --= neighborhood.map{case (id, _) => id}
-        _particles ++= newNeighborhood
-      } else {
-        log.info(s"Rejected: deltaEnergy = $deltaEnergy, energy = $energy, newEnmergy = $newEnergy")
+      if(_particles.size > 0) {
+        val randomParticle: Particle = _particles.toList(Random.nextInt(_particles.keys.size))._2
+        val neighborhood: Map[String, Particle] = _particles.filter{ case (_, particle) => Math.abs(randomParticle.pos - particle.pos) <= randomParticle.radius}.toMap
+        val energy = randomParticle.energy(neighborhood)
+        val newNeighborhood: Map[String, Particle] = randomParticle.transform(neighborhood)
+        val newEnergy = randomParticle.energy(newNeighborhood)
+        val deltaEnergy = newEnergy - energy
+        if (deltaEnergy < 0) {
+          log.info(s"Transformed: deltaEnergy = $deltaEnergy, energy = $energy, newEnmergy = $newEnergy")
+          _particles --= neighborhood.map{case (id, _) => id}
+          _particles ++= newNeighborhood
+        } else {
+          log.info(s"Rejected: deltaEnergy = $deltaEnergy, energy = $energy, newEnmergy = $newEnergy")
+        }
       }
       version_(version + 1)
       sender ! Transformed(model())
